@@ -18,16 +18,10 @@ CCU_VERSION="$(md5sum "$0" | cut -c -32)"
 
 # -- Source shared functions safely.
 
-if [ -f "/usr/lib/nuts/functions" ]; then
-    # shellcheck source=/dev/null
-    . "/usr/lib/nuts/functions"
-else
-    # -- Fallback definitions.
-    puts_info()    { printf 'Info: %s\n' "$*" >&2; }
-    puts_success() { printf 'Success: %s\n' "$*" >&2; }
-    puts_warning() { printf 'Warning: %s\n' "$*" >&2; }
-    puts_error()   { printf 'Error: %s\n' "$*" >&2; }
-fi
+puts_info()    { printf 'Info: %s\n' "$*" >&2; }
+puts_success() { printf 'Success: %s\n' "$*" >&2; }
+puts_warning() { printf 'Warning: %s\n' "$*" >&2; }
+puts_error()   { printf 'Error: %s\n' "$*" >&2; }
 
 
 # -- Display version of running component.
