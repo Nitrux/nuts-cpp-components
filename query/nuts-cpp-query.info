@@ -1,0 +1,38 @@
+# Default values for nuts-query
+# nuts-query.info 2026 (c) Nitrux Latinoamericana S.C.
+
+# ---------------------------------------------------------
+# CORE UPDATE INFORMATION (Must be Top-Level)
+# ---------------------------------------------------------
+
+# The target version for the update.
+# (Formerly in [RELEASE])
+MINTARGET=5.1.0.build.251025
+
+# Checksum of the OTA SquashFS file.
+# (Formerly in [OTA])
+OTASUM=5081b2f54380466aa4af3054423ff720
+
+# ---------------------------------------------------------
+# COMPONENT CHECKSUMS (NEW & MANDATORY)
+# ---------------------------------------------------------
+# These are required by nuts-cpp for security verification.
+# You must calculate these SHA256 (or MD5) sums for your files.
+
+# Checksum for the standalone dpkg AppImage
+DPKG_AI_SUM=e5f6g7h8...
+
+# Checksum for the var-lib-dpkg tarball
+VAR_LIB_SUM=i9j0k1l2...
+
+# Checksum for the nuts-ccu cleanup script
+NUTS_CCU_CHECKSUM=m3n4o5p6...
+
+# ---------------------------------------------------------
+# DOWNLOAD LOCATIONS
+# ---------------------------------------------------------
+
+[URL]
+# List of full URLs to the OTA SquashFS.
+# The code supports MIRRORLIST here or at the top level.
+MIRRORLIST=https://master.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.01.06-17.31-amd64.squashfs,https://netactuate.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.01.06-17.31-amd64.squashfs,https://netix.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.01.06-17.31-amd64.squashfs,https://freefr.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.01.06-17.31-amd64.squashfs,https://phoenixnap.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.01.06-17.31-amd64.squashfs,https://ufpr.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.01.06-17.31-amd64.squashfs,https://liquidtelecom.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.01.06-17.31-amd64.squashfs,https://yer.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.01.06-17.31-amd64.squashfs,https://newcontinuum.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.01.06-17.31-amd64.squashfs,https://versaweb.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.01.06-17.31-amd64.squashfs
