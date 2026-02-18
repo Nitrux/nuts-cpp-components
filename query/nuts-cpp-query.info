@@ -5,25 +5,25 @@
 # Update Information
 # ------------------
 MINTARGET=6.0.0
-OTASUM=kjn2b31j...
+OTASUM=50f4b429589b9ddace56008c245f144f7b420bedf8dffd75a9350769f1d9fd67
 
 # ---------
 # Checksums
 # ---------
-DPKG_AI_SUM=e5f6g7h8...
-VAR_LIB_SUM=i9j0k1l2...
-NUTS_CCU_CHECKSUM=m3n4o5p6...
+DPKG_AI_SUM=4da8fa6683f38097e0afa467e7b754def54e1f784727f1a2b01bd691f6377dbb
+VAR_LIB_SUM=23ecde60909d45e59bf508d56218e9c40d8fb601b625b02fe220491caf9ca6b2
+NUTS_CCU_CHECKSUM=26c4c0e379cf0cc24b2e0954f9b910298948863bc6268e4e5648ed1c1d6213df
 
 # -----------
 # OTA Mirrors
 # -----------
-MIRROR1=https://master.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.01.06-17.31-amd64.squashfs
-MIRROR2=https://netactuate.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.01.06-17.31-amd64.squashfs
-MIRROR3=https://netix.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.01.06-17.31-amd64.squashfs
-MIRROR4=https://freefr.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.01.06-17.31-amd64.squashfs
-MIRROR5=https://phoenixnap.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.01.06-17.31-amd64.squashfs
-MIRROR6=https://ufpr.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.01.06-17.31-amd64.squashfs
-MIRROR7=https://liquidtelecom.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.01.06-17.31-amd64.squashfs
-MIRROR8=https://yer.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.01.06-17.31-amd64.squashfs
-MIRROR9=https://newcontinuum.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.01.06-17.31-amd64.squashfs
-MIRROR10=https://versaweb.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.01.06-17.31-amd64.squashfs
+MIRROR1=https://master.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.02.17-19.23-amd64.squashfs
+MIRROR2=https://netactuate.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.02.17-19.23-amd64.squashfs
+MIRROR3=https://netix.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.02.17-19.23-amd64.squashfs
+MIRROR4=https://freefr.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.02.17-19.23-amd64.squashfs
+MIRROR5=https://phoenixnap.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.02.17-19.23-amd64.squashfs
+MIRROR6=https://ufpr.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.02.17-19.23-amd64.squashfs
+MIRROR7=https://liquidtelecom.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.02.17-19.23-amd64.squashfs
+MIRROR8=https://yer.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.02.17-19.23-amd64.squashfs
+MIRROR9=https://newcontinuum.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.02.17-19.23-amd64.squashfs
+MIRROR10=https://versaweb.dl.sourceforge.net/project/nitruxos/Updates/ota-2026.02.17-19.23-amd64.squashfs
