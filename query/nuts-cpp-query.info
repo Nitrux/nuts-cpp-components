@@ -5,9 +5,9 @@
 # Update Information
 # ------------------
 MINTARGET=6.0.0
-OTAFILE=ota-2026.02.17-19.23-amd64.squashfs
+OTAFILE=ota-2026.02.18-19.14-amd64.squashfs
 OTABRANCH=Testing
-OTASUM=50f4b429589b9ddace56008c245f144f7b420bedf8dffd75a9350769f1d9fd67
+OTASUM=acb41824edc3971a4e2be9d16bf2008de61d2b113dc03e1f93c9f2d026308865
 
 # ---------
 # Checksums
