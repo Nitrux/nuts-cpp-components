@@ -38,6 +38,159 @@ create_symlink() {
     ln -svf "$source" "$destination" > /dev/null 2>&1
 }
 
+install_vicinae_latest() {
+    set -euo pipefail
+
+    local repo="vicinaehq/vicinae"
+    local prefix="${1:-/usr/local}"
+    local binary_name="vicinae"
+    local install_dir="$prefix/lib/vicinae"
+    local bin_dir="$prefix/bin"
+    local themes_dir="$prefix/share/vicinae/themes"
+    local applications_dir="$prefix/share/applications"
+
+    local workdir
+    local api_url
+    local response
+    local version
+    local asset
+    local appimage_path
+    local extract_dir
+    local src_root
+    local binary_path
+    local extracted=0
+
+    for cmd in curl jq unsquashfs grep cut head find sed chmod mkdir rm mv cp ln mktemp; do
+        command -v "$cmd" >/dev/null 2>&1 || {
+            printf 'Missing required command: %s\n' "$cmd" >&2
+            return 1
+        }
+    done
+
+    workdir="$(mktemp -d /tmp/vicinae.XXXXXX)"
+    appimage_path="$workdir/Vicinae.AppImage"
+    extract_dir="$workdir/extract"
+
+    trap 'rm -rf "$workdir"' RETURN
+
+    api_url="https://api.github.com/repos/$repo/releases/latest"
+    response="$(curl -fsSL "$api_url")"
+
+    version="$(printf '%s\n' "$response" | jq -r '.tag_name')"
+    asset="$(printf '%s\n' "$response" | jq -r '.assets[] | select(.name | contains("AppImage")) | .name' | head -n1)"
+
+    [[ -n "$version" && "$version" != "null" ]] || {
+        echo "Failed to determine latest Vicinae version" >&2
+        return 1
+    }
+
+    [[ -n "$asset" && "$asset" != "null" ]] || {
+        echo "Failed to find Vicinae AppImage asset" >&2
+        return 1
+    }
+
+    curl -fL "https://github.com/$repo/releases/download/$version/$asset" -o "$appimage_path"
+    chmod 0755 "$appimage_path"
+
+    mkdir -p "$extract_dir"
+
+    if unsquashfs -f -d "$extract_dir" "$appimage_path" >/dev/null 2>&1; then
+        extracted=1
+    else
+        rm -rf "$extract_dir"
+        mkdir -p "$extract_dir"
+
+        while IFS=: read -r offset _; do
+            [[ -n "$offset" ]] || continue
+
+            rm -rf "$extract_dir"
+            mkdir -p "$extract_dir"
+
+            if unsquashfs -o "$offset" -f -d "$extract_dir" "$appimage_path" >/dev/null 2>&1; then
+                extracted=1
+                break
+            fi
+        done < <(grep -abo 'hsqs' "$appimage_path")
+    fi
+
+    [[ "$extracted" -eq 1 ]] || {
+        echo "Failed to extract Vicinae AppImage without executing it" >&2
+        return 1
+    }
+
+    if [[ -d "$extract_dir/squashfs-root" ]]; then
+        src_root="$extract_dir/squashfs-root"
+    else
+        src_root="$extract_dir"
+    fi
+
+    rm -rf "$install_dir"
+    mkdir -p "$prefix/lib" "$bin_dir" "$applications_dir"
+    mv "$src_root" "$install_dir"
+
+    if [[ -x "$install_dir/usr/bin/$binary_name" ]]; then
+        binary_path="$install_dir/usr/bin/$binary_name"
+    elif [[ -x "$install_dir/AppRun" ]]; then
+        binary_path="$install_dir/AppRun"
+    else
+        echo "Failed to locate Vicinae executable after extraction" >&2
+        return 1
+    fi
+
+    ln -sf "$binary_path" "$bin_dir/$binary_name"
+
+    if [[ -x "$install_dir/usr/bin/node" ]]; then
+        ln -sf "$install_dir/usr/bin/node" "$bin_dir/vicinae-node"
+    fi
+
+    if [[ -d "$install_dir/usr/share/vicinae/themes" ]]; then
+        rm -rf "$themes_dir"
+        mkdir -p "$themes_dir"
+        cp -a "$install_dir/usr/share/vicinae/themes"/. "$themes_dir"/
+    fi
+
+    if [[ -d "$install_dir/usr/share/applications" ]]; then
+        find "$install_dir/usr/share/applications" -maxdepth 1 -type f -name 'vicinae*.desktop' -exec cp -f {} "$applications_dir"/ \;
+
+        if command -v update-desktop-database >/dev/null 2>&1; then
+            update-desktop-database "$applications_dir" >/dev/null 2>&1 || true
+        fi
+    fi
+
+    if [[ -d "$install_dir/usr/share/vicinae/native-messaging-hosts" ]]; then
+        local templates_dir="$install_dir/usr/share/vicinae/native-messaging-hosts"
+        local native_host_bin="$install_dir/usr/libexec/vicinae/vicinae-browser-link"
+        local chrome_extension_id="com.vicinae.vicinae"
+
+        if [[ -f "$templates_dir/com.vicinae.vicinae.chromium.json.in" ]]; then
+            mkdir -p /etc/chromium/native-messaging-hosts
+            sed -e "s|@NATIVE_HOST_BIN@|$native_host_bin|g" \
+                -e "s|@CHROME_EXTENSION_ID@|$chrome_extension_id|g" \
+                "$templates_dir/com.vicinae.vicinae.chromium.json.in" \
+                > /etc/chromium/native-messaging-hosts/com.vicinae.vicinae.json
+        fi
+
+        if [[ -f "$templates_dir/com.vicinae.vicinae.firefox.json.in" ]]; then
+            mkdir -p /usr/lib/mozilla/native-messaging-hosts
+            sed -e "s|@NATIVE_HOST_BIN@|$native_host_bin|g" \
+                "$templates_dir/com.vicinae.vicinae.firefox.json.in" \
+                > /usr/lib/mozilla/native-messaging-hosts/com.vicinae.vicinae.json
+        fi
+    fi
+
+    if [[ -d "$install_dir/usr/lib/udev/rules.d" ]]; then
+        mkdir -p "$prefix/lib/udev/rules.d"
+        cp -a "$install_dir/usr/lib/udev/rules.d"/. "$prefix/lib/udev/rules.d"/
+    fi
+
+    if [[ -d "$install_dir/usr/lib/modules-load.d" ]]; then
+        mkdir -p "$prefix/lib/modules-load.d"
+        cp -a "$install_dir/usr/lib/modules-load.d"/. "$prefix/lib/modules-load.d"/
+    fi
+
+    printf 'Installed Vicinae %s to %s\n' "$version" "$prefix"
+}
+
 #   ====== START ======
 
 # -- NIST SP 800-63B recommends AGAINST periodic password changes.
@@ -155,6 +308,7 @@ declare -A FILES_TO_COPY=(
     ["configs/files/other/pam.d/common-auth"]="/etc/pam.d/common-auth"
     ["configs/files/other/pam.d/common-password"]="/etc/pam.d/common-password"
     ["configs/files/other/pam.d/common-session"]="/etc/pam.d/common-session"
+    ["configs/files/other/pam.d/common-session-noninteractive"]="/etc/pam.d/common-session-noninteractive"
     ["configs/files/other/security/limits.conf"]="/etc/security/limits.conf"
     
     # -- Pwquality.
@@ -200,6 +354,7 @@ rm -f /usr/share/wayland-sessions/plasma.desktop || true
 DELETE_UNUSED_KCMS_LAUNCHERS=(
     kcm_autostart.desktop
     kcm_breezedecoration.desktop
+    kcm_componentchooser.desktop
     kcm_desktoptheme.desktop
     kcm_feedback.desktop
     kcm_fontinst.desktop
@@ -226,6 +381,7 @@ DELETE_UNUSED_KCMS_LAUNCHERS=(
 DELETE_UNUSED_KCMS_LIBEXEC=(
     kcm_autostart.so
     kcm_breezedecoration.so
+    kcm_componentchooser.so
     kcm_desktoptheme.so
     kcm_feedback.so
     kcm_fontinst.so
@@ -240,6 +396,7 @@ DELETE_UNUSED_KCMS_LIBEXEC=(
     kcm_lookandfeel.so
     kcm_netpref.so
     kcm_nightlight.so
+    kcm_nighttime.so
     kcm_notifications.so
     kcm_proxy.so
     kcm_regionandlang.so
@@ -620,6 +777,56 @@ EOF
 chmod 0755 "$MKFS_F2FS_BIN"
 
 
+# -- Add Vicinae to replace Wofi. 
+# -- Vicinae is available as an AppImage, but it seems the official way to "install it" is to use the install script, which extracts the AppImage(?).
+# -- However, that will fail because the script is trying to execute the AppImage inside the chroot.
+
+install_vicinae_latest /usr/local
+
+
+# -- Pre-generate the fontconfig cache.
+
+fc-cache -f -v
+
+
+# -- Create the generic XDG menu file name, so KApplicationTrader::queryByMimeType(...) finds it.
+
+XDG_MENU_SRC="/etc/xdg/menus/plasma-applications.menu"
+XDG_MENU_DEST="/etc/xdg/menus/applications.menu"
+
+if [ ! -f "$XDG_MENU_SRC" ]; then
+    echo "Warning: Source file '$XDG_MENU_SRC' does not exist."
+elif [ ! -e "$XDG_MENU_DEST" ] && [ ! -L "$XDG_MENU_DEST" ]; then
+    ln -sv "$XDG_MENU_SRC" "$XDG_MENU_DEST"
+fi
+
+
+# -- Manual mitigation for CVE-2026-31431 (Copy Fail).
+
+cat >/etc/modprobe.d/disable-algif-aead.conf <<EOF
+install algif_aead /bin/false
+install algif_skcipher /bin/false
+install algif_hash /bin/false
+install algif_rng /bin/false
+EOF
+
+
+# -- Manual mitigation for CVE-2026-43284 and CVE-2026-43500 (Dirty Frag and Fragnesia).
+
+cat >/etc/modprobe.d/disable-esp-ipsec.conf <<EOF
+install esp4 /bin/false
+install esp6 /bin/false
+install rxrpc /bin/false
+EOF
+
+
+# -- Regenerate console-setup cache after changing defaults so TTY settings are ready on first boot without running setupcon manually.
+
+if command -v setupcon >/dev/null 2>&1; then
+    setupcon --save-only || setupcon --save || true
+fi
+
+
 # ++++++++++++ #
 
 
@@ -654,17 +861,14 @@ REQUIRED_PARAMS=(
     "amdgpu.vm_update_mode=3"
     "apparmor=1"
     "audit=0"
-    "clocksource=tsc"
     "fsck.mode=skip"
     "hardened_usercopy=1"
-    "hpet=disable"
     "init_on_free=1"
     "intel_pstate=enable"
     "kfence=off"
     "libahci.ignore_sss=1"
     "lsm=capability,yama,bpf,apparmor,landlock"
     "modprobe.blacklist=iTCO_wdt,sp5100_tco"
-    "nohz=on"
     "nosgx"
     "nvidia_drm.modeset=1"
     "nvme_core.multipath=Y"
@@ -677,13 +881,11 @@ REQUIRED_PARAMS=(
     "randomize_kstack_offset=1"
     "rcu_nocbs=all"
     "rcupdate.rcu_expedited=1"
-    "rcutree.enable_rcu_lazy=1"
     "slab_nomerge"
-    "tsc=nowatchdog"
-    "tsc=reliable"
     "usbcore.autosuspend=-1"
     "vdso32=0"
     "vsyscall=none"
+    "vt.global_cursor_default=0"
     "xhci_hcd.quirks=270336"
     "zswap.compressor=zstd"
     "zswap.enabled=1"
