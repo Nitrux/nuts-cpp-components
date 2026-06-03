@@ -1,20 +1,20 @@
-# Default values for nuts-query
+# Default values for nuts-cpp-query
 # nuts-query.info 2026 (c) Nitrux Latinoamericana S.C.
 
 # ------------------
 # Update Information
 # ------------------
 MINTARGET=6.0.0
-OTAFILE=ota-2026.02.18-19.14-amd64.squashfs
+OTAFILE=ota-2026.06.03-08.32-amd64.squashfs
 OTABRANCH=Testing
-OTASUM=acb41824edc3971a4e2be9d16bf2008de61d2b113dc03e1f93c9f2d026308865
+OTASUM=d19bff183ab391bee86767fc79b952f5d22b9cbba1535856e02868165ddae8c3
 
 # ---------
 # Checksums
 # ---------
 DPKG_AI_SUM=4da8fa6683f38097e0afa467e7b754def54e1f784727f1a2b01bd691f6377dbb
 VAR_LIB_SUM=23ecde60909d45e59bf508d56218e9c40d8fb601b625b02fe220491caf9ca6b2
-NUTS_CCU_CHECKSUM=26c4c0e379cf0cc24b2e0954f9b910298948863bc6268e4e5648ed1c1d6213df
+NUTS_CCU_CHECKSUM=19618d2b51986a94b4b0b2982f563f7a3e187712c8b30cb42723f5a7ab4ddd0a
 
 # -----------
 # OTA Mirrors
