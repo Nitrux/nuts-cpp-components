@@ -6,7 +6,7 @@
 # ------------------
 MINTARGET=6.1.0
 OTAFILE=ota-2026.06.03-08.32-amd64.squashfs
-OTABRANCH=Testing
+OTABRANCH=Updates
 OTASUM=d19bff183ab391bee86767fc79b952f5d22b9cbba1535856e02868165ddae8c3
 
 # ---------
